@@ -95,7 +95,7 @@ elif RUNMODE == "predict_test":
     
     # Instantiate model
     thisModel = FCN8VGG16Model(**Run_settings.modelparams)
-    #ModelInfo = thisModel.get_ModelInfo()
+    ModelInfo = thisModel.get_ModelInfo()
 
     Run_settings.runparams['IS_TESTING'] = True
     Run_settings.runparams['PREDICT_ALL'] = False
@@ -180,8 +180,8 @@ elif RUNMODE == "predict_unlabeled":
             newName = Run_settings.RESULTPATH + barename + Run_settings.EXT_IMGS
             
             if ' ' in oldName:
-                oldName = oldName.replace(' ', '\ ')
-                newName = newName.replace(' ', '\ ')
+                oldName = oldName.replace(' ', r'\ ')
+                newName = newName.replace(' ', r'\ ')
             
             os.system('mv ' + oldName + ' ' + newName)
         

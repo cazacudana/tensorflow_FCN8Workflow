@@ -263,11 +263,23 @@ class FCN8VGG16Model(object):
         if ('rowmin' in predNames[0]) and ('rowmin' not in imNames[0]):
             bare_predNames = [j.split('_rowmin')[0] for j in bare_predNames]
         
+        # Debugging: Print intermediate results
+        """
+        print("Image Names:", imNames)
+        print("\n ")
+        print("Label Names:", labelNames)
+        print("\n ")
+        print("Prediction Names:", predNames)
+        print("\n ")
+        print("Bare Prediction Names:", bare_predNames)
+        print("\n ")
+        """
+        
         
         # Only keep ims and lbls for which there is preds
         
         imNames = [j for j in imNames if j.split(self.EXT_IMGS)[0] in bare_predNames]
-        labelNames = [j for j in labelNames if j.split(self.EXT_LBLS)[0] in bare_predNames]
+        #labelNames = [j for j in labelNames if j.split(self.EXT_LBLS)[0] in bare_predNames]
         
         imNames.sort()
         labelNames.sort()
@@ -374,6 +386,11 @@ class FCN8VGG16Model(object):
                          SCALEFACTOR=1):
         
         """Plots confusion matrix using saved predictions"""
+        print("confusion matrix stuff")
+        print(self.RESULTPATH + 'preds/')
+        print(self.LABELPATH)
+        print(self.RESULTPATH + 'costs/')
+        
         
         # Get names of images, labels, and preds
         _, labelNames, predNames = self._get_PredNames()

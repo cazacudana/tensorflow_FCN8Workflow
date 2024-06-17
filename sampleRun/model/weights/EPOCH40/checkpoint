@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/danacazacu/Documents/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/EPOCH40/model.ckpt"
+all_model_checkpoint_paths: "/Users/danacazacu/Documents/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/EPOCH40/model.ckpt"

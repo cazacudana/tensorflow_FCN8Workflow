@@ -13,6 +13,8 @@ import matplotlib.pylab as plt
 import matplotlib as mpl
 import scipy.misc
 import numpy as np
+import imageio.v3 as iio
+from PIL import Image 
 from sklearn.metrics import confusion_matrix
 from scipy.io import loadmat
 from termcolor import colored
@@ -68,13 +70,16 @@ def _Load_and_Fix(IMAGEPATH="", LABELPATH="", PREDPATH="",
     
     LoadedData = {'': [],}
     if IMAGEPATH != "":
-        im = scipy.misc.imread(IMAGEPATH + imname) 
+        #im = scipy.misc.imread(IMAGEPATH + imname) 
+        im = iio.imread(IMAGEPATH + imname)
+        
         LoadedData = {'im': im,}
             
     if ".mat" in labelname:
         lbl = loadmat(LABELPATH + labelname)['label_crop']
     else:
-        lbl = scipy.misc.imread(LABELPATH + labelname) 
+        lbl = iio.imread(LABELPATH + labelname)
+        #lbl = scipy.misc.imread(LABELPATH + labelname) 
     
     if ".mat" in predname: # i.e. soft scores
         pred = loadmat(PREDPATH + predname)['pred_label']
@@ -249,19 +254,32 @@ def PlotConfusionMatrix(PREDPATH='', LABELPATH='', RESULTPATH='',
     '''
     Plots normalized class-specific confusion matrix for predictions.
     '''
-    
+    # Initialize cnf_matrix
+    cnf_matrix = np.array([])
     # NOTE: 
     # the following was taken from some internet post (on StackOverflow?)
     # I forgot to take note of the source URL.
-    
     print("Getting confusion matrix for ALL images in directory ...")
     
+
     try:
-        
-        # imidx = 0; labelname = labelNames[0]
+        # Ensure labelNames and predNames have the same size
+        if len(labelNames) != len(predNames):
+            print("\nWarning: The number of labels and predictions do not match!")
+            print("Number of labelNames: ", len(labelNames))
+            print("Number of predNames: ", len(predNames))
+                
+            min_size = min(len(labelNames), len(predNames))
+            labelNames = labelNames[:min_size]
+            predNames = predNames[:min_size]
+                
+        print("\nAdjusted labelNames and predNames to size: ", min_size)
+        imidx = 0; #labelname = labelNames[0]
         for imidx, labelname in enumerate(labelNames):
             
+            print(imidx)
             print("image {} of {} ({})".format(imidx+1, len(labelNames), labelname))
+          
             
             try:  
                 LoadedData = _Load_and_Fix(LABELPATH = LABELPATH, 
@@ -287,9 +305,10 @@ def PlotConfusionMatrix(PREDPATH='', LABELPATH='', RESULTPATH='',
                 else:
                     cnf_matrix = cnf_matrix + confusion_matrix(lbl_flat, pred_flat)
                     
-            except FileNotFoundError:
+            except FileNotFoundError as e:
                 print(colored("FileNotFoundError. Moving on to next image.", 'yellow'))
                 # i.e. image label available but image not predicted
+                print(e)  # Print the error message
                 continue 
 
     except KeyboardInterrupt:
@@ -297,8 +316,13 @@ def PlotConfusionMatrix(PREDPATH='', LABELPATH='', RESULTPATH='',
     
     # Plot normalized confusion matrix
     np.set_printoptions(precision=2)
-    
-    cnf_matrix = cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]
+    if cnf_matrix.size > 0:
+        #perform the operation
+        cnf_matrix = cnf_matrix.astype('float') / cnf_matrix.sum(axis=1)[:, np.newaxis]
+        print(cnf_matrix)
+    else:
+        #handle the case where cnf matrix is empty
+        print("cnf_matrix is empty. Cannot perform operation.")
     
     norm_conf = []
     for i in cnf_matrix:

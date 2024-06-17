@@ -1,0 +1,101 @@
+--2024-04-21 14:07:20--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+           => ‘vgg16.npy’
+Resolving mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)... 129.169.82.147
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:08:36--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 2) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:09:53--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 3) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:10:51--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 4) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:12:10--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 5) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:13:30--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 6) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:14:51--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 7) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:16:13--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 8) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:17:36--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try: 9) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:19:00--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:10) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:20:25--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:11) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:21:50--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:12) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:23:15--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:13) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:24:40--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:14) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:26:05--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:15) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:27:30--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:16) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:28:55--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:17) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:30:20--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:18) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:31:45--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:19) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Retrying.
+
+--2024-04-21 14:33:10--  ftp://mi.eng.cam.ac.uk/pub/mttt2/models/vgg16.npy
+  (try:20) => ‘vgg16.npy’
+Connecting to mi.eng.cam.ac.uk (mi.eng.cam.ac.uk)|129.169.82.147|:21... failed: Operation timed out.
+Giving up.
+

@@ -9,6 +9,8 @@ Created on Sun Aug 20 01:43:24 2017
 import os
 import scipy.misc
 import numpy as np
+import imageio.v3 as iio
+from PIL import Image 
 
 cwd = os.getcwd()
 
@@ -28,8 +30,10 @@ for imname in names:
     
     try:
         
-        im = scipy.misc.imread(IMAGEPATH + imname)
-        lbl = scipy.misc.imread(LABELPATH + labelname)
+        #im = scipy.misc.imread(IMAGEPATH + imname)
+        im = iio.imread(IMAGEPATH + imname)
+        lbl = iio.imread(LABELPATH + labelname)
+        #lbl = scipy.misc.imread(LABELPATH + labelname)
 
         lbl_bin = 1 + (lbl > 0)
         

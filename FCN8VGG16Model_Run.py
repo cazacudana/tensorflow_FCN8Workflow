@@ -12,6 +12,7 @@ Run an FCN8 model
 import os
 import sys
 
+
 def conditionalAppend(Dir):
     """ Append dir to sys path"""
     if Dir not in sys.path:
@@ -24,7 +25,9 @@ conditionalAppend(cwd + "/tensorflow_fcn")
 # General imports
 from termcolor import colored
 import numpy as np
-import tensorflow as tf
+#import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 import scipy.misc
 from scipy.io import savemat
 import time
@@ -33,8 +36,10 @@ import logging
 import datetime
 
 # FCN-related imports
-import fcn8_vgg
-import loss
+#import fcn8_vgg
+from tensorflow_fcn import fcn8_vgg
+#import loss
+from tensorflow_fcn import loss
 
 # Project-related imports
 import ProjectUtils as putils

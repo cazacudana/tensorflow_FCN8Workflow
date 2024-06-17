@@ -69,7 +69,7 @@ with open('strings.json') as json_data:
 
 if RUNMODE not in ["predict_test", "predict_unlabeled"]:
     thisModel = FCN8VGG16Model(**Run_settings.modelparams)
-    #ModelInfo = thisModel.get_ModelInfo()
+    ModelInfo = thisModel.get_ModelInfo()
 
 
 #%%============================================================================
@@ -84,7 +84,7 @@ if RUNMODE == "train":
     
     thisRun = FCN8VGG16Model_Run(thisModel, RunParams = Run_settings.runparams)
     thisRun.set_GPUOpts(N_GPUs = Run_settings.N_GPUs)
-    #RunInfo = thisRun.get_RunInfo()
+    RunInfo = thisRun.get_RunInfo()
     thisRun.Run()
 
 
@@ -101,7 +101,7 @@ elif RUNMODE == "predict_test":
     
     # Instantiate model
     thisModel = FCN8VGG16Model(**Run_settings.modelparams)
-    #ModelInfo = thisModel.get_ModelInfo()
+    ModelInfo = thisModel.get_ModelInfo()
 
     Run_settings.runparams['IS_TESTING'] = True
     Run_settings.runparams['PREDICT_ALL'] = False
@@ -111,7 +111,7 @@ elif RUNMODE == "predict_test":
     # Run the model
     thisRun = FCN8VGG16Model_Run(thisModel, RunParams = Run_settings.runparams)
     thisRun.set_GPUOpts(N_GPUs = Run_settings.N_GPUs)
-    #RunInfo = thisRun.get_RunInfo()
+    RunInfo = thisRun.get_RunInfo()
     thisRun.Run()
     
     # Plot comparisons of labels and predictions (testing)
@@ -131,7 +131,7 @@ elif RUNMODE == "predict_all":
 
     thisRun = FCN8VGG16Model_Run(thisModel, RunParams = Run_settings.runparams)
     thisRun.set_GPUOpts(N_GPUs = Run_settings.N_GPUs)
-    #RunInfo = thisRun.get_RunInfo()
+    RunInfo = thisRun.get_RunInfo()
     thisRun.Run()
     
     # Plot confustion matrix for all images for training/valiation
@@ -151,7 +151,7 @@ elif RUNMODE == "predict_unlabeled":
 
     # Instantiate model         
     thisModel = FCN8VGG16Model(**Run_settings.modelparams)
-    #ModelInfo = thisModel.get_ModelInfo()
+    ModelInfo = thisModel.get_ModelInfo()
 
     splitparams_thisRun = {'RESULTPATH': Run_settings.RESULTPATH,
                            'IMAGEPATH': Run_settings.IMAGEPATH,
@@ -166,7 +166,7 @@ elif RUNMODE == "predict_unlabeled":
     # Run the model
     thisRun = FCN8VGG16Model_Run(thisModel, RunParams = Run_settings.runparams)
     thisRun.set_GPUOpts(N_GPUs = Run_settings.N_GPUs)
-    #RunInfo = thisRun.get_RunInfo()
+    RunInfo = thisRun.get_RunInfo()
     thisRun.Run()
     
     # Maintain original naming convention for images that 
@@ -186,8 +186,8 @@ elif RUNMODE == "predict_unlabeled":
             newName = Run_settings.RESULTPATH + barename + Run_settings.EXT_IMGS
             
             if ' ' in oldName:
-                oldName = oldName.replace(' ', '\ ')
-                newName = newName.replace(' ', '\ ')
+                oldName = oldName.replace(' ', r'\ ')
+                newName = newName.replace(' ', r'\ ')
             
             os.system('mv ' + oldName + ' ' + newName)
         

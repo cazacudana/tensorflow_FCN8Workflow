@@ -8,6 +8,9 @@ Data management utilities
 # Append relevant paths
 import os
 import sys
+#import imageio
+import imageio.v3 as iio
+from PIL import Image 
 
 def conditionalAppend(Dir):
     """ Append dir to sys path"""
@@ -119,7 +122,8 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
         # Get image dimensions
         if SAVE_FOVs:
             # Read image since you'll need it later anyways
-            im = scipy.misc.imread(IMAGEPATH + imname)
+            #im = scipy.misc.imread(IMAGEPATH + imname)
+            im = iio.imread(IMAGEPATH + imname)
             # dimensions
             M = im.shape[0]
             N = im.shape[1]
@@ -141,7 +145,8 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
         if not IS_UNLABELED: 
             labelname = labelNames_original[imidx]
             if ".mat" not in labelname:
-                lbl = scipy.misc.imread(LABELPATH + labelname)
+                #lbl = scipy.misc.imread(LABELPATH + labelname)
+                lbl = iio.imread(LABELPATH + labelname)
             else:    
                 lbl = loadmat(LABELPATH + labelname)['label_crop']
         
@@ -298,31 +303,52 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                 # RGB image
                 ThisFOV_RGB = im[fovbounds[0]:fovbounds[1], \
                                  fovbounds[2]:fovbounds[3]]
-                ThisFOV_RGB = scipy.misc.toimage(ThisFOV_RGB, \
-                                                 high=np.max(ThisFOV_RGB),\
-                                                 low=np.min(ThisFOV_RGB))
-                savename_im = "{}".format(imname.split(EXT_IMGS)[0]) + \
-                                 imindices + EXT_IMGS
-                ThisFOV_RGB.save(FOVPATH_IMS + savename_im)
+                ThisFOV_RGB_normalized =  (ThisFOV_RGB - np.min(ThisFOV_RGB)) * 255 / (np.max(ThisFOV_RGB) - np.min(ThisFOV_RGB))
+                ThisFOV_RGB_normalized = ThisFOV_RGB_normalized.astype(np.uint8)
+                
+                #Convert the array to an image using PIL 
+                ThisFOV_RGB_image = Image.fromarray(ThisFOV_RGB_normalized)
+                
+                #Save the image 
+                savename_im = "{}{}{}".format(imname.split(EXT_IMGS)[0], imindices, EXT_IMGS)
+                ThisFOV_RGB_image.save(FOVPATH_IMS + savename_im)
+                
+                #ThisFOV_RGB = scipy.misc.toimage(ThisFOV_RGB, \
+                                                #high=np.max(ThisFOV_RGB),\
+                                                #low=np.min(ThisFOV_RGB))
+                #ThisFOV_RGB = Image.fromarray(ThisFOV_RGB)
+                #savename_im = "{}".format(imname.split(EXT_IMGS)[0]) + \
+                                 #imindices + EXT_IMGS
+                #ThisFOV_RGB.save(FOVPATH_IMS + savename_im)
                 
                 # label
                 if not IS_UNLABELED:
-                    ThisFOV_GT = scipy.misc.toimage(ThisFOV_GT, high=np.max(ThisFOV_GT),\
-                                                    low=np.min(ThisFOV_GT), mode='I')
+                    # Convert the array to an image using PIL
+                    ThisFOV_GT_image = Image.fromarray(ThisFOV_GT)
+
+                    # Save the image
+                    savename_lbl = "{}{}{}".format(labelname.split(EXT_LBLS)[0], imindices, EXT_LBLS)
+                    ThisFOV_GT_image.save(FOVPATH_LBLS + savename_lbl)
+
+                    logging.info("Saved " + "{}{}".format(imname.split(EXT_IMGS)[0], imindices))
                     
-                    savename_lbl = "{}".format(labelname.split(EXT_LBLS)[0]) + \
-                                    imindices + EXT_LBLS
-                    ThisFOV_GT.save(FOVPATH_LBLS + savename_lbl)
                     
-                    logging.info("Saved " + "{}".format(imname.split(EXT_IMGS)[0]) + imindices)
+                    #ThisFOV_GT = scipy.misc.toimage(ThisFOV_GT, high=np.max(ThisFOV_GT),\
+                                                    #low=np.min(ThisFOV_GT), mode='I')
+                    #ThisFOV_RGB = Image.fromarray(ThisFOV_RGB)
+                # savename_lbl = "{}".format(labelname.split(EXT_LBLS)[0]) + \
+                                # imindices + EXT_LBLS
+                    #ThisFOV_GT.save(FOVPATH_LBLS + savename_lbl)
+                    
+                    #logging.info("Saved " + "{}".format(imname.split(EXT_IMGS)[0]) + imindices)
                     
                 # now add to list of imnames for this big image
                 fov_bounds_thisim_alt.append([0, fovbounds[1] - fovbounds[0],\
-                                              0, fovbounds[3] - fovbounds[2]])
+                                            0, fovbounds[3] - fovbounds[2]])
                 imNames_thisim.append([savename_im])
                 if not IS_UNLABELED:
                     labelNames_thisim.append([savename_lbl])
-        
+    
         # ignore
         if not SAVE_FOVs:
             # ignore
@@ -344,7 +370,7 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
         FOV_bounds.extend(FOV_bounds_thisim)
         if not IS_UNLABELED:
             labelNames.extend(labelNames_thisim)
-    
+        
     # Convert to np array
     imNames = np.array(imNames)
     FOV_bounds = np.array(FOV_bounds)
@@ -513,7 +539,7 @@ def LoadData(IMAGEPATH="", LABELPATH="", \
         
         except FileNotFoundError:
             # Big image
-            BigIm = scipy.misc.imread(IMAGEPATH + imname)
+            BigIm = iio.imread(IMAGEPATH + imname)
             
             if USE_MMAP:
                 # save npy file to be able to mmap
@@ -525,7 +551,7 @@ def LoadData(IMAGEPATH="", LABELPATH="", \
                 if matFile:
                     BigLbl = loadmat(LABELPATH + labelname)['label_crop']
                 else:
-                    BigLbl = scipy.misc.imread(LABELPATH + labelname)
+                    BigLbl = iio.imread(LABELPATH + labelname)
                     
                 # Since label images were multiplied by some factor to increase visibility
                 BigLbl = BigLbl / SCALEFACTOR

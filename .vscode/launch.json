@@ -1,0 +1,57 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Run.py predict_unlabeled",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Run.py",
+            "args": ["predict_unlabeled", "${workspaceFolder}/sampleRun/run_script/"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Run.py predict_all",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Run.py",
+            "args": ["predict_all", "${workspaceFolder}/sampleRun/run_script/"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Run.py predict_test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Run.py",
+            "args": ["predict_test", "${workspaceFolder}/sampleRun/run_script/"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
+            },
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Run.py train",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/Run.py",
+            "args": ["train", "${workspaceFolder}/sampleRun/run_script/"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
+            },
+            "justMyCode": true
+        }
+    ]
+}
