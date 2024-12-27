@@ -63,7 +63,7 @@ if (Run_settings.SCALEFACTOR != 1) and \
 
 if RUNMODE not in ["predict_test", "predict_unlabeled"]:
     thisModel = FCN8VGG16Model(**Run_settings.modelparams)
-    #ModelInfo = thisModel.get_ModelInfo()
+    ModelInfo = thisModel.get_ModelInfo()
 
 
 #%%============================================================================
