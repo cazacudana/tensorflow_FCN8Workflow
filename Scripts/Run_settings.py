@@ -16,6 +16,9 @@ IMAGEPATH = "./images/"
 #LABELPATH = ""
 LABELPATH = IMAGEPATH + "GTinfo/"
 
+print("Running run settings from script")
+print()
+
 MODELPATH_LOAD = "./model/"
 MODELPATH_SAVE = MODELPATH_LOAD
 
@@ -38,14 +41,14 @@ SCALEFACTOR = 1
 # labels and weights
 #
 
-CLASSLABELS = [1, 2, 3]
+CLASSLABELS = [1, 2, 3,4,5]
 
 #CLASSWEIGHTS = [1, 1, 1] # Give custom weight
 CLASSWEIGHTS = [] # automatically handle class imbalance
 
 cMap = ['blue','magenta','cyan']
 cMap_lbls = ['Class1','Class2','Class3']
-EXCLUDE_LBL = [0, 4, 5, 6]
+EXCLUDE_LBL = [0,6,7,8,9]
 
 #
 # Dicts

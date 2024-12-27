@@ -41,7 +41,7 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                  FREE_DIMS = False, \
                  TRAIN_DIMS = (800, 800), SHIFT_STEP = 0, \
                  IS_UNLABELED = False, \
-                 CLASSLABELS = [0, 1], EXCLUDE_LBL = [0], \
+                 CLASSLABELS = [0, 1, 2, 3], EXCLUDE_LBL = [0], \
                  IGNORE_THRESH = 0.95, \
                  SAVE_FOVs = False, \
                  MINDIMS = 32, MAXDIMS = 2500, \
@@ -466,7 +466,7 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
 def LoadData(IMAGEPATH="", LABELPATH="", \
              imNames=[], labelNames=[], fovBounds=[],
              EXT_IMGS = ".png", EXT_LBLS = ".png", 
-             CLASSLABELS = [0, 1], 
+             CLASSLABELS = [0, 1, 2, 3], 
              SCALEFACTOR=1, USE_MMAP = True):
     
     '''

@@ -1,2 +1,6 @@
-model_checkpoint_path: "/Users/danacazacu/Documents/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/model.ckpt"
-all_model_checkpoint_paths: "/Users/danacazacu/Documents/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/model.ckpt"
+model_checkpoint_path: "/Users/danacazacu/Desktop/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/model.ckpt"
+all_model_checkpoint_paths: "/Users/danacazacu/Desktop/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/EPOCH110/model.ckpt"
+all_model_checkpoint_paths: "/Users/danacazacu/Desktop/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/EPOCH120/model.ckpt"
+all_model_checkpoint_paths: "/Users/danacazacu/Desktop/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/EPOCH130/model.ckpt"
+all_model_checkpoint_paths: "/Users/danacazacu/Desktop/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/EPOCH140/model.ckpt"
+all_model_checkpoint_paths: "/Users/danacazacu/Desktop/GitHub/tensorflow_FCN8Workflow/sampleRun/model/weights/model.ckpt"

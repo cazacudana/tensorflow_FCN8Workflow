@@ -16,6 +16,8 @@ Created on Thu Aug  3 16:53:31 2017
 import os
 cwd = os.getcwd()
 
+print("Running run settings from sample run")
+print()
 IMAGEPATH = cwd + "/sampleRun/images/"
 
 LABELPATH = IMAGEPATH + "GTinfo/"
@@ -43,13 +45,13 @@ SCALEFACTOR = 1
 # labels and weights
 #
 
-CLASSLABELS = [1, 2]
+CLASSLABELS = [1, 2, 3, 4, 5]
 
 #CLASSWEIGHTS = [1, 1] # Give custom weight
 CLASSWEIGHTS = [] # automatically handle class imbalance
 
 cMap = ['blue', 'red']
-cMap_lbls = ['Class1', 'Class2']
+cMap_lbls = ['Class1', 'Class2','Class3','Class4','Class5']
 EXCLUDE_LBL = [0]
 
 #

@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+        {"name":"Python Debugger: Current File","type":"debugpy","request":"launch","program":"${file}","console":"integratedTerminal"},
         {
             "name": "Python: Run.py predict_unlabeled",
             "type": "python",
@@ -13,6 +14,7 @@
                 "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
             },
             "justMyCode": true
+            
         },
         {
             "name": "Python: Run.py predict_all",
@@ -26,6 +28,7 @@
                 "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
             },
             "justMyCode": true
+            
         },
         {
             "name": "Python: Run.py predict_test",
@@ -39,6 +42,7 @@
                 "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
             },
             "justMyCode": true
+           
         },
         {
             "name": "Python: Run.py train",
@@ -52,6 +56,7 @@
                 "RUNSETTINGPATH": "${workspaceFolder}/sampleRun/run_script/"
             },
             "justMyCode": true
+            
         }
     ]
 }
