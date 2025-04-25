@@ -105,7 +105,7 @@ elif RUNMODE == "predict_test":
     # Run the model
     thisRun = FCN8VGG16Model_Run(thisModel, RunParams = Run_settings.runparams)
     thisRun.set_GPUOpts(N_GPUs = Run_settings.N_GPUs)
-    #RunInfo = thisRun.get_RunInfo()
+    RunInfo = thisRun.get_RunInfo()
     thisRun.Run()
     
     # Plot comparisons of labels and predictions (testing)

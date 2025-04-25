@@ -11,6 +11,8 @@ import sys
 #import imageio
 import imageio.v3 as iio
 from PIL import Image 
+import matplotlib.pyplot as plt
+import numpy as np
 
 def conditionalAppend(Dir):
     """ Append dir to sys path"""
@@ -41,7 +43,7 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                  FREE_DIMS = False, \
                  TRAIN_DIMS = (800, 800), SHIFT_STEP = 0, \
                  IS_UNLABELED = False, \
-                 CLASSLABELS = [0, 1, 2, 3], EXCLUDE_LBL = [0], \
+                 CLASSLABELS = [0, 1, 2, 3, 4], EXCLUDE_LBL = [0], \
                  IGNORE_THRESH = 0.95, \
                  SAVE_FOVs = False, \
                  MINDIMS = 32, MAXDIMS = 2500, \
@@ -79,6 +81,7 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
     
     # Create relevant subdirectories 
     FOVPATH_IMS = IMAGEPATH + "FOVs/"
+    FOVPATH_IMS_ORIGINAL = IMAGEPATH + "FOVs_Original/"
     FOVPATH_LBLS = FOVPATH_IMS + "GTinfo/"
     if SAVE_FOVs:
         putils.Log_and_print("Creating directories to save FOV's ...")
@@ -299,7 +302,14 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
             
             # Save FOV labels and rgb images
             if SAVE_FOVs:
-                             
+                
+                #Display Fov in normal pixel values
+                # Extract the FOV patch
+                ThisFOV_RGB = im[fovbounds[0]:fovbounds[1], fovbounds[2]:fovbounds[3]]
+
+                # Make a copy of original for visualization
+                ThisFOV_RGB_vis = ThisFOV_RGB.copy()
+
                 # RGB image
                 ThisFOV_RGB = im[fovbounds[0]:fovbounds[1], \
                                  fovbounds[2]:fovbounds[3]]
@@ -309,9 +319,19 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                 #Convert the array to an image using PIL 
                 ThisFOV_RGB_image = Image.fromarray(ThisFOV_RGB_normalized)
                 
-                #Save the image 
+                #Save the image ( normalized) 
                 savename_im = "{}{}{}".format(imname.split(EXT_IMGS)[0], imindices, EXT_IMGS)
                 ThisFOV_RGB_image.save(FOVPATH_IMS + savename_im)
+                
+                #Save original FOVS 
+                # Save to disk
+                # Convert to PIL image
+                image_to_save = Image.fromarray(ThisFOV_RGB_vis)
+                savename_im = "{}{}{}".format(imname.split(EXT_IMGS)[0], imindices, EXT_IMGS)
+                # Ensure the folder exists
+                os.makedirs(FOVPATH_IMS_ORIGINAL, exist_ok=True)
+                image_to_save.save(FOVPATH_IMS_ORIGINAL + savename_im)
+               
                 
                 #ThisFOV_RGB = scipy.misc.toimage(ThisFOV_RGB, \
                                                 #high=np.max(ThisFOV_RGB),\
@@ -321,6 +341,25 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                                  #imindices + EXT_IMGS
                 #ThisFOV_RGB.save(FOVPATH_IMS + savename_im)
                 
+                
+                
+                # #Display normalized FOV vs original ones
+                # # --- Visualization block ---
+                # plt.figure(figsize=(8, 4))
+
+                # plt.subplot(1, 2, 1)
+                # plt.imshow(ThisFOV_RGB_vis)
+                # plt.title("Original FOV")
+                # plt.axis('off')
+                             
+                # plt.subplot(1, 2, 2)
+                # plt.imshow(ThisFOV_RGB_normalized)
+                # plt.title("Normalized FOV")
+                # plt.axis('off')
+                
+                # plt.tight_layout()
+                # plt.show()
+                # # ---------------------------
                 # label
                 if not IS_UNLABELED:
                     # Convert the array to an image using PIL
@@ -466,7 +505,7 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
 def LoadData(IMAGEPATH="", LABELPATH="", \
              imNames=[], labelNames=[], fovBounds=[],
              EXT_IMGS = ".png", EXT_LBLS = ".png", 
-             CLASSLABELS = [0, 1, 2, 3], 
+             CLASSLABELS = [0, 1, 2, 3, 4], 
              SCALEFACTOR=1, USE_MMAP = True):
     
     '''

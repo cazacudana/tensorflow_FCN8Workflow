@@ -18,9 +18,15 @@ cwd = os.getcwd()
 
 print("Running run settings from sample run")
 print()
-IMAGEPATH = cwd + "/sampleRun/images/"
+#small data set 
+IMAGEPATH = cwd + "/sampleRun/images/trainimagesold/"
+#Big data set
+#IMAGEPATH = cwd + "/sampleRun/images/"
 
-LABELPATH = IMAGEPATH + "GTinfo/"
+#small data set 
+LABELPATH = cwd + "/sampleRun/images/" + "GTinfo_old/"
+#Big data set
+#LABELPATH = IMAGEPATH + "GTinfo/"
 #LABELPATH = ""
 
 MODELPATH_LOAD = cwd + "/sampleRun/model/"
@@ -45,14 +51,14 @@ SCALEFACTOR = 1
 # labels and weights
 #
 
-CLASSLABELS = [1, 2, 3, 4, 5]
+CLASSLABELS = [1, 2, 3, 4]
 
-#CLASSWEIGHTS = [1, 1] # Give custom weight
+#CLASSWEIGHTS = [1, 1, 1, 1, 1] # Give custom weight
 CLASSWEIGHTS = [] # automatically handle class imbalance
 
-cMap = ['blue', 'red']
-cMap_lbls = ['Class1', 'Class2','Class3','Class4','Class5']
-EXCLUDE_LBL = [0]
+cMap = ['red', 'blue' , 'green' , 'yellow']
+cMap_lbls = ['tumor', 'stroma','inflamatory infiltrates','necrosis' ]
+EXCLUDE_LBL = [0, 5, 6, 7]
 
 #
 # Dicts

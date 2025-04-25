@@ -165,6 +165,10 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
                                        EXCLUDE_LBL = EXCLUDE_LBL)
                                                    
             im = LoadedData['im']
+            # Convert to RGB if grayscale (2D)
+            #if len(im.shape) == 2:
+            #   im = np.stack([im]*3, axis=-1)
+            #print("Min/Max values in image:", im.min(), im.max())
             lbl = LoadedData['lbl']
             pred = LoadedData['pred'] 
             LoadedData = None
@@ -188,9 +192,10 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             
             # Plot image and labels/predictions
             f, axarr = plt.subplots(1, 5)
-                
-            axarr[0].imshow(im)
             
+           
+        
+            axarr[0].imshow(im)
             axarr[1].imshow(pred, cmap=cMap)
             axarr[2].imshow(pred_ignoreExcl, cmap=cMap)
             axarr[3].imshow(lbl, cmap=cMap)
@@ -272,8 +277,7 @@ def PlotConfusionMatrix(PREDPATH='', LABELPATH='', RESULTPATH='',
             min_size = min(len(labelNames), len(predNames))
             labelNames = labelNames[:min_size]
             predNames = predNames[:min_size]
-                
-        print("\nAdjusted labelNames and predNames to size: ", min_size)
+            print("\nAdjusted labelNames and predNames to size: ", min_size)
         imidx = 0; #labelname = labelNames[0]
         for imidx, labelname in enumerate(labelNames):
             

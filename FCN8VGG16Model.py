@@ -64,10 +64,12 @@ class FCN8VGG16Model(object):
     
     SplitDataParams_UserSpecified = ['IMAGEPATH', 'LABELPATH']
     
+
+    
     # default colormap and colormap labels
-    CLASSLABELS_default = [1, 2, 3] # MUST start from 1 (0 is for exclude/don't care)
-    cMap_default = ['blue','magenta','cyan']
-    cMap_lbls_default = ['Class1','Class2','Class3']
+    CLASSLABELS_default = [1, 2, 3, 4] # MUST start from 1 (0 is for exclude/don't care)
+    cMap_default = ['orange','magenta','pink','brown']
+    cMap_lbls_default = ['tumor','stroma','inflamatory infiltrates','necrosis']
 
     # Instantiate
     ###########################################################################
@@ -177,7 +179,7 @@ class FCN8VGG16Model(object):
             # Don't care class is mapped to the first channel 
             self.CLASSWEIGHTS = [0] + self.CLASSWEIGHTS
             self.CLASSWEIGHTS = np.float32(self.CLASSWEIGHTS)
-            self.cMap = ['black'] + self.cMap
+            self.cMap = ['cyan'] + self.cMap
             self.cMap_lbls = ['Other'] + self.cMap_lbls
                  
             # Get mapping for predictions - since argmax only gets 
@@ -279,6 +281,9 @@ class FCN8VGG16Model(object):
         # Only keep ims and lbls for which there is preds
         
         imNames = [j for j in imNames if j.split(self.EXT_IMGS)[0] in bare_predNames]
+        
+        #This part is commented out because the bare predictions seems to be empty and i havd an error
+        #need to be solved and uncommmented
         #labelNames = [j for j in labelNames if j.split(self.EXT_LBLS)[0] in bare_predNames]
         
         imNames.sort()
