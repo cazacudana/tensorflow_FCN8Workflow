@@ -254,43 +254,25 @@ class FCN8VGG16Model(object):
         predNames = [j for j in predNames if 'pred_' in j]
         
         # Get barenames of predictions
-        
         if '.mat' in predNames[0]:
             ext = '.mat'
         else:
             ext = self.EXT_IMGS
-        
         bare_predNames = [j.split('pred_')[1].split(ext)[0] for j in predNames]
-        
+        # Restore original conditional stripping of _rowmin
         if ('rowmin' in predNames[0]) and ('rowmin' not in imNames[0]):
             bare_predNames = [j.split('_rowmin')[0] for j in bare_predNames]
         
-        # Debugging: Print intermediate results
-        """
-        print("Image Names:", imNames)
-        print("\n ")
-        print("Label Names:", labelNames)
-        print("\n ")
-        print("Prediction Names:", predNames)
-        print("\n ")
-        print("Bare Prediction Names:", bare_predNames)
-        print("\n ")
-        """
-        
-        
         # Only keep ims and lbls for which there is preds
-        
         imNames = [j for j in imNames if j.split(self.EXT_IMGS)[0] in bare_predNames]
-        
-        #This part is commented out because the bare predictions seems to be empty and i havd an error
-        #need to be solved and uncommmented
+
+        # Restore this original commented filter:
         #labelNames = [j for j in labelNames if j.split(self.EXT_LBLS)[0] in bare_predNames]
-        
+
         imNames.sort()
         labelNames.sort()
         predNames.sort()
-        
-            
+
         return imNames, labelNames, predNames
     
     #==========================================================================
@@ -423,8 +405,8 @@ class FCN8VGG16Model(object):
         imNames, labelNames, predNames = self._get_PredNames()
         
         
-        plotutils.SaveComparisons(IMAGEPATH = self.IMAGEPATH, \
-                                  LABELPATH = self.LABELPATH, \
+        plotutils.SaveComparisons(IMAGEPATH = self.IMAGEPATH , \
+                                  LABELPATH = self.LABELPATH , \
                                   PREDPATH = self.RESULTPATH +'preds/', \
                                   RESULTPATH = self.RESULTPATH+'comparisons/', \
                                   imNames = imNames, 

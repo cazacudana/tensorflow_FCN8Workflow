@@ -8,7 +8,7 @@ Created on Mon Jun 19 11:57:43 2017
 Plotting utilities
 """
 
-#import os
+import os
 import matplotlib.pylab as plt
 import matplotlib as mpl
 import scipy.misc
@@ -20,7 +20,9 @@ from scipy.io import loadmat
 from termcolor import colored
 
 
-
+# in Run_settings.py or at top of your main script
+EXT_IMGS = ".png"
+EXT_LBLS = ".png"   # or ".mat" if your masks are MATLAB files
 #%%============================================================================
 # Plot training/validation cost
 #==============================================================================
@@ -136,27 +138,33 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
     in a separate subfolder within this folder.
     '''
     print("\n Saving side-by-side comparison ...")
-    
-    
-    # Define custom discrete color scheme
-    #    cMap = ['black','blue','magenta','cyan']
-    #    cMap_lbls = ['Exclude','Class1','Class2','Class3']
-    
-    cMap = mpl.colors.ListedColormap(cMap)    
-    
-    
+
+    # Define custom discrete color map
+    cMap = mpl.colors.ListedColormap(cMap)
+
     try:
         # Loop through images
         #imidx = 0; imname = imNames[0]
+        # Ensure EXT_IMGS and EXT_LBLS are in scope
+        # You may need to set these at the module level, but assuming they are available as per instructions
         for imidx, imname in enumerate(imNames):
-        
             print("image {} of {} ({})".format(imidx+1, len(imNames), imname))
-            
-            LoadedData = _Load_and_Fix(IMAGEPATH = IMAGEPATH, 
-                                       LABELPATH = LABELPATH, 
-                                       PREDPATH = PREDPATH, 
-                                       imname = imname, 
-                                       labelname = labelNames[imidx], 
+
+            # Derive the correct label filename based on image name and coordinates
+            base = imname.split(EXT_IMGS)[0]
+            prefix = base.split('_rowmin')[0]  # e.g. 'train_16'
+            coords = base[len(prefix):]       # e.g. '_rowmin0_rowmax256_colmin496_colmax752'
+            labelname = f"{prefix}_anno{coords}{EXT_LBLS}"
+
+            print(f"Image: {imname}")
+            print(f"Label: {labelname}")
+            print(f"Prediction: {predNames[imidx]}")
+
+            LoadedData = _Load_and_Fix(IMAGEPATH = IMAGEPATH,
+                                       LABELPATH = LABELPATH,
+                                       PREDPATH = PREDPATH,
+                                       imname = imname,
+                                       labelname = labelname,
                                        predname = predNames[imidx],
                                        SCALEFACTOR = SCALEFACTOR,
                                        CLASSLABELS = CLASSLABELS,
@@ -165,10 +173,6 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
                                        EXCLUDE_LBL = EXCLUDE_LBL)
                                                    
             im = LoadedData['im']
-            # Convert to RGB if grayscale (2D)
-            #if len(im.shape) == 2:
-            #   im = np.stack([im]*3, axis=-1)
-            #print("Min/Max values in image:", im.min(), im.max())
             lbl = LoadedData['lbl']
             pred = LoadedData['pred'] 
             LoadedData = None
@@ -182,20 +186,25 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             #d = Diff.copy()
             Diff[Diff != 0] = 1
             Diff = Diff * pred_ignoreExcl
+
+            diff_bool = Diff != 0
             
             # Make sure the full color map is occupied for all images
             fullRange = np.array([0] + CLASSLABELS)
             lbl[0:len(CLASSLABELS)+1,1] = fullRange
             pred[0:len(CLASSLABELS)+1,1] = fullRange
             pred_ignoreExcl[0:len(CLASSLABELS)+1,1] = fullRange
-            Diff[0:len(CLASSLABELS)+1,1] = fullRange
+            #Diff[0:len(CLASSLABELS)+1,1] = fullRange
             
             # Plot image and labels/predictions
-            f, axarr = plt.subplots(1, 5)
+            f, axarr = plt.subplots(1, 6, figsize=(15, 3))
             
-           
+            #Print image name for comparation
+            # (Already printed above)
+            
         
             axarr[0].imshow(im)
+            
             axarr[1].imshow(pred, cmap=cMap)
             axarr[2].imshow(pred_ignoreExcl, cmap=cMap)
             axarr[3].imshow(lbl, cmap=cMap)
@@ -206,6 +215,17 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             axarr[2].set_title('Pred_Excl', fontsize=10, fontweight='bold')
             axarr[3].set_title('GTruth', fontsize=10, fontweight='bold')
             axarr[4].set_title('Diff', fontsize=10, fontweight='bold')
+            
+            # Define a custom error colormap: 0=correct (orange), 1=wrong (black)
+            err_cmap = mpl.colors.ListedColormap(['orange','black'])
+            # Sixth panel: error mask boolean
+            im_err = axarr[5].imshow(diff_bool, cmap=err_cmap, vmin=0, vmax=1)
+            from matplotlib.patches import Patch
+            patch_correct = Patch(color='orange', label='Correct')
+            patch_wrong   = Patch(color='black',   label='Wrong')
+            axarr[5].legend(handles=[patch_correct, patch_wrong],
+                            loc='lower right', fontsize=8, frameon=False)
+            axarr[5].set_title('Error Mask', fontsize=10, fontweight='bold')
             
             
             # create a second axes for the colorbar
@@ -219,7 +239,7 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             #legend
             cbar.ax.get_yaxis().set_ticks([])
             for j, lab in enumerate(cMap_lbls):
-                cbar.ax.text(2, (2 * j + 1) / 8, lab, ha='left', va='center')
+                cbar.ax.text(2, (j + 0.5) / len(cMap_lbls), lab, ha='left', va='center')
             cbar.ax.get_yaxis().labelpad = 15
             
             # Fine-tune figure; hide x ticks and y labels
@@ -227,8 +247,8 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             pixelrange_y = list(np.arange(0,maxdim_y,int(maxdim_y/5)))
             
             plt.setp(axarr, xticks=pixelrange_x, yticks=pixelrange_y)
-            plt.setp([a.get_yticklabels() for a in axarr[0:5]], visible=False)
-            plt.setp([a.get_xticklabels() for a in axarr[0:5]], visible=False)
+            plt.setp([a.get_yticklabels() for a in axarr[0:6]], visible=False)
+            plt.setp([a.get_xticklabels() for a in axarr[0:6]], visible=False)
             
             # save
             barename = imname.split('.')
@@ -236,8 +256,13 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             for i in range(len(barename)-1):
                 imaname_noExt = imaname_noExt + barename[i]
                 
-            plt.savefig(RESULTPATH+"comparison_" + imaname_noExt + ".tif", \
-                        format='tif', dpi=300, bbox_inches='tight')
+            # Ensure a subfolder for comparisons exists under RESULTPATH
+            save_dir = os.path.join(RESULTPATH, "comparisons_predict_test")
+            os.makedirs(save_dir, exist_ok=True)
+            # Build the full save path
+            save_path = os.path.join(save_dir, f"comparison_{imaname_noExt}.tif")
+            print(f"[DEBUG] Saving comparison figure to: {save_path}")
+            plt.savefig(save_path, format='tif', dpi=300, bbox_inches='tight')
             
             plt.close()
             

@@ -436,13 +436,14 @@ class FCN8VGG16Model_Run(object):
                 
                 if SavePreds:
                     
+                    
                     # save batch predictions
                     subbatch_imnames = bigbatch_imnames[idxmin:idxmax]
                     subbatch_fovbounds = bigbatch_fovbounds[idxmin:idxmax, :]
                     
                     # imidx = 0
                     for imidx in range(len(subbatch_imnames)):
-                        
+                        print(f">>> [DEBUG] Salvare predicţie pentru {subbatch_imnames[imidx]}")
                         if self.SOFTPREDS:
                             pred_label = pred_batch[imidx,:,:,:] 
                         else:
@@ -805,7 +806,7 @@ class FCN8VGG16Model_Run(object):
                 if not self.IS_UNLABELED:
                     
                     putils.Log_and_print("\nEvaluating model on testing set ...")
-                    
+                    print(">>> [DEBUG] Număr total patch-uri de test:", len(self.imNames))
                     try:
                         cost_test = \
                             self._RunAllBatches(\

@@ -22,6 +22,11 @@ conditionalAppend(cwd + "/tensorflow_fcn")
 import os
 from termcolor import colored
 
+import numpy as np
+import scipy.io
+from PIL import Image
+import csv
+
 import ProjectUtils as putils
 from FCN8VGG16Model import FCN8VGG16Model
 from FCN8VGG16Model_Run import FCN8VGG16Model_Run
@@ -105,7 +110,7 @@ elif RUNMODE == "predict_test":
     # Run the model
     thisRun = FCN8VGG16Model_Run(thisModel, RunParams = Run_settings.runparams)
     thisRun.set_GPUOpts(N_GPUs = Run_settings.N_GPUs)
-    RunInfo = thisRun.get_RunInfo()
+    #RunInfo = thisRun.get_RunInfo()
     thisRun.Run()
     
     # Plot comparisons of labels and predictions (testing)
@@ -184,5 +189,54 @@ elif RUNMODE == "predict_unlabeled":
                 newName = newName.replace(' ', r'\ ')
             
             os.system('mv ' + oldName + ' ' + newName)
+        
+        
+    # # Quantify unlabeled predictions: per-class pixel fractions
+    # class_labels = [Run_settings.EXCLUDE_LBL[0]] + Run_settings.CLASSLABELS
+    # stats = []
+    # result_dir = Run_settings.modelparams['RESULTPATH']
+    # for fname in sorted(os.listdir(result_dir)):
+    #     if not fname.endswith(Run_settings.EXT_IMGS) and not fname.endswith('.mat'):
+    #         continue
+    #     path = os.path.join(result_dir, fname)
+    #     # Load mask array
+    #     if fname.endswith('.mat'):
+    #         mat = scipy.io.loadmat(path)
+    #         arr = next(v for k, v in mat.items() if not k.startswith('__'))
+    #         if arr.ndim == 3:
+    #             arr = np.argmax(arr, axis=2)
+    #     else:
+    #         arr = np.array(Image.open(path))
+    #     # Compute counts and fractions
+    #     counts = np.bincount(arr.flatten(), minlength=len(class_labels))
+    #     fracs = counts / arr.size
+    #     stats.append([fname] + fracs.tolist())
+    # # Write CSV
+    # csv_path = os.path.join(result_dir, 'unlabeled_stats.csv')
+    # with open(csv_path, 'w', newline='') as f:
+    #     writer = csv.writer(f)
+    #     header = ['image'] + [f'class_{c}_frac' for c in class_labels]
+    #     writer.writerow(header)
+    #     writer.writerows(stats)
+    # print(f"Saved unlabeled statistics to {csv_path}")
+    # # Print top 5 images with highest necrosis fraction (class_3_frac) using csv module
+    # csv_path = os.path.join(result_dir, 'unlabeled_stats.csv')
+    # necro_list = []
+    # with open(csv_path, newline='') as f:
+    #     reader = csv.reader(f)
+    #     header = next(reader)
+    #     idx_frac3 = header.index('class_3_frac')
+    #     idx_img    = header.index('image')
+    #     for row in reader:
+    #         try:
+    #             frac3 = float(row[idx_frac3])
+    #             necro_list.append((row[idx_img], frac3))
+    #         except ValueError:
+    #             continue
+    # # Sort descending by necrosis fraction
+    # necro_list.sort(key=lambda x: x[1], reverse=True)
+    # print("Top 5 images with highest necrosis fraction (class_3_frac):")
+    # for img_name, frac in necro_list[:5]:
+    #     print(f"{img_name}: {frac:.4f}")
         
     

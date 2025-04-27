@@ -81,13 +81,17 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
     
     # Create relevant subdirectories 
     FOVPATH_IMS = IMAGEPATH + "FOVs/"
-    FOVPATH_IMS_ORIGINAL = IMAGEPATH + "FOVs_Original/"
+    FOVPATH_IMS_ORIGINAL = FOVPATH_IMS + "FOVs_Original/"
     FOVPATH_LBLS = FOVPATH_IMS + "GTinfo/"
+    FOVPATH_LBLS_ORIGINAL = FOVPATH_LBLS + "GTinfo_Original/"
     if SAVE_FOVs:
         putils.Log_and_print("Creating directories to save FOV's ...")
         putils.makeSubdir(IMAGEPATH, "FOVs")
+        putils.Log_and_print("Creating directories to save FOV's  original...")
+        putils.makeSubdir(FOVPATH_IMS, "FOVs_Original")
         if not IS_UNLABELED:
             putils.makeSubdir(FOVPATH_IMS, "GTinfo")
+            putils.makeSubdir(FOVPATH_LBLS, "GTinfo_Original")
     
     # Keep only relevant files and sort
     imNames_original = [j for j in imNames_original if EXT_IMGS in j]
@@ -319,18 +323,15 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                 #Convert the array to an image using PIL 
                 ThisFOV_RGB_image = Image.fromarray(ThisFOV_RGB_normalized)
                 
-                #Save the image ( normalized) 
                 savename_im = "{}{}{}".format(imname.split(EXT_IMGS)[0], imindices, EXT_IMGS)
-                ThisFOV_RGB_image.save(FOVPATH_IMS + savename_im)
-                
-                #Save original FOVS 
-                # Save to disk
-                # Convert to PIL image
-                image_to_save = Image.fromarray(ThisFOV_RGB_vis)
-                savename_im = "{}{}{}".format(imname.split(EXT_IMGS)[0], imindices, EXT_IMGS)
-                # Ensure the folder exists
-                os.makedirs(FOVPATH_IMS_ORIGINAL, exist_ok=True)
-                image_to_save.save(FOVPATH_IMS_ORIGINAL + savename_im)
+                # Save raw RGB patch for easy viewing
+                image_to_save = Image.fromarray(ThisFOV_RGB_vis.astype(np.uint8))
+                os.makedirs(FOVPATH_IMS, exist_ok=True)
+                image_to_save.save(FOVPATH_IMS + 
+                                   savename_im)
+
+                # Save normalized version separately into FOVs_Original
+                ThisFOV_RGB_image.save(FOVPATH_IMS_ORIGINAL + savename_im)
                
                 
                 #ThisFOV_RGB = scipy.misc.toimage(ThisFOV_RGB, \
@@ -362,15 +363,23 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                 # # ---------------------------
                 # label
                 if not IS_UNLABELED:
+                    
+                    # Make a copy of original for visualization
+                    ThisFOV_GT_vis = ((ThisFOV_GT-1) *255 ).astype(np.uint8)
                     # Convert the array to an image using PIL
                     ThisFOV_GT_image = Image.fromarray(ThisFOV_GT)
-
+                    
+                     #save image in directory
+                    # Convert to PIL image
+                    image_to_save = Image.fromarray(ThisFOV_GT_vis)
+                    image_to_save.save(FOVPATH_LBLS_ORIGINAL + savename_im)
+                    
+                    
                     # Save the image
                     savename_lbl = "{}{}{}".format(labelname.split(EXT_LBLS)[0], imindices, EXT_LBLS)
                     ThisFOV_GT_image.save(FOVPATH_LBLS + savename_lbl)
 
                     logging.info("Saved " + "{}{}".format(imname.split(EXT_IMGS)[0], imindices))
-                    
                     
                     #ThisFOV_GT = scipy.misc.toimage(ThisFOV_GT, high=np.max(ThisFOV_GT),\
                                                     #low=np.min(ThisFOV_GT), mode='I')
@@ -385,6 +394,15 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                 fov_bounds_thisim_alt.append([0, fovbounds[1] - fovbounds[0],\
                                             0, fovbounds[3] - fovbounds[2]])
                 imNames_thisim.append([savename_im])
+                
+               
+                # #----Visualisation only -------
+                # plt.subplot(1, 1, 1)
+                # plt.imshow(image_to_save)
+                # plt.title("Normalized FOV gt")
+                # plt.axis('off')
+                # plt.tight_layout()
+                # plt.show()
                 if not IS_UNLABELED:
                     labelNames_thisim.append([savename_lbl])
     

@@ -70,8 +70,8 @@ splitparams = {'IMAGEPATH': IMAGEPATH,
                'IS_UNLABELED': False,
                'SAVE_FOVs': True,
                
-               'PERC_TRAIN' : 0.9, 
-               'PERC_TEST' : 0.1, 
+               'PERC_TRAIN' : 0.8, 
+               'PERC_TEST' : 0.2, 
                'EXT_IMGS' : EXT_IMGS, 
                'EXT_LBLS' : EXT_LBLS,
                
@@ -98,13 +98,14 @@ modelparams = {'RESULTPATH' : RESULTPATH,
 splitparams_thisRun = None # existing model-specific set of images
 
 runparams = {'USE_VALID' : True, 
-             'IS_TESTING' : False, 
+             'IS_TESTING' : True, 
              'PREDICT_ALL' : False, 
+             'SOFTPREDS': True,
              
              'AUGMENT': True,
-             'LEARN_RATE' : 1e-6,
-             'SUBBATCH_SIZE' : 3,
-             'BIGBATCH_SIZE' : 6,
+             'LEARN_RATE' : 1e-5,
+             'SUBBATCH_SIZE' : 4,
+             'BIGBATCH_SIZE' : 16,
              'MODELSAVE_STEP': 10,
              'MODEL_BACKUP_STEP': 10,
              
