@@ -11,6 +11,9 @@ Utilities to run FCN8 on a set of images
 # Append relevant paths
 import os
 import sys
+from collections import defaultdict
+import imageio.v3 as iio
+from scipy.io import loadmat
 
 def conditionalAppend(Dir):
     """ Append dir to sys path"""
@@ -163,8 +166,8 @@ class FCN8VGG16Model(object):
                 self.CLASSWEIGHTS = CLASSWEIGHTS
             
             # Assign training data-specific attributes
-            self.IMAGEPATH = self.SplitData['IMAGEPATH'] 
-            self.LABELPATH = self.SplitData['LABELPATH']               
+            self.IMAGEPATH = self.SplitData['IMAGEPATH']
+            self.LABELPATH = self.SplitData['LABELPATH'] if 'LABELPATH' in self.SplitData else None
             self.EXT_IMGS = SplitDataParams['EXT_IMGS']
             self.EXT_LBLS = SplitDataParams['EXT_LBLS']
             self.EXCLUDE_LBL = SplitDataParams['EXCLUDE_LBL']
@@ -233,7 +236,7 @@ class FCN8VGG16Model(object):
         CLASSSUMS = np.sum(self.SplitData['class_sums'], axis=0)
         CLASSSUMS = CLASSSUMS / np.sum(CLASSSUMS)
         
-        self.CLASSWEIGHTS = list(1 - CLASSSUMS)
+        self.CLASSWEIGHTS = list(1.0 - CLASSSUMS)
 
     
     #==========================================================================  
@@ -301,8 +304,8 @@ class FCN8VGG16Model(object):
         self.SplitDataHistory.append(timestamp)
         
         # Re-assign training data-specific attributes
-        self.IMAGEPATH = self.SplitData['IMAGEPATH'] 
-        self.LABELPATH = self.SplitData['LABELPATH']
+        self.IMAGEPATH = self.SplitData['IMAGEPATH']
+        self.LABELPATH = self.SplitData['LABELPATH'] if 'LABELPATH' in self.SplitData else None
         self.EXT_IMGS = SplitDataParams['EXT_IMGS']
         self.EXT_LBLS = SplitDataParams['EXT_LBLS']
         self.EXCLUDE_LBL = SplitDataParams['EXCLUDE_LBL']
@@ -369,31 +372,78 @@ class FCN8VGG16Model(object):
             
     #==========================================================================
     
-    def PlotConfusionMat(self, labelNames=[], predNames=[], 
-                         SCALEFACTOR=1):
-        
+    def PlotConfusionMat(self, labelNames=[], predNames=[], SCALEFACTOR=1):
         """Plots confusion matrix using saved predictions"""
-        print("confusion matrix stuff")
-        print(self.RESULTPATH + 'preds/')
-        print(self.LABELPATH)
-        print(self.RESULTPATH + 'costs/')
-        
-        
-        # Get names of images, labels, and preds
-        _, labelNames, predNames = self._get_PredNames()
-        
-        plotutils.PlotConfusionMatrix(PREDPATH = self.RESULTPATH + 'preds/', \
-                                      LABELPATH = self.LABELPATH, \
-                                      RESULTPATH = self.RESULTPATH + 'costs/', \
-                                      labelNames=labelNames, 
-                                      predNames=predNames, 
-                                      SCALEFACTOR = SCALEFACTOR,
-                                      CLASSLABELS = self.CLASSLABELS,
-                                      label_mapping = self.label_mapping,
-                                      IGNORE_EXCLUDED = True,
-                                      EXCLUDE_LBL = self.EXCLUDE_LBL,
-                                      cMap = self.cMap,
-                                      cMap_lbls= self.cMap_lbls)
+        if not hasattr(self, "IS_UNLABELED") or not self.IS_UNLABELED:
+            print("confusion matrix stuff")
+            print(self.RESULTPATH + 'preds/')
+            print(self.LABELPATH)
+            print(self.RESULTPATH + 'costs/')
+
+            # Get names of images, labels, and preds
+            _, labelNames, predNames = self._get_PredNames()
+
+            plotutils.PlotConfusionMatrix(
+                PREDPATH=self.RESULTPATH + 'preds/',
+                LABELPATH=self.LABELPATH,
+                RESULTPATH=self.RESULTPATH + 'costs/',
+                labelNames=labelNames,
+                predNames=predNames,
+                SCALEFACTOR=SCALEFACTOR,
+                CLASSLABELS=self.CLASSLABELS,
+                label_mapping=self.label_mapping,
+                IGNORE_EXCLUDED=True,
+                EXCLUDE_LBL=self.EXCLUDE_LBL,
+                cMap=self.cMap,
+                cMap_lbls=self.cMap_lbls
+            )
+            print("\n[INFO] Starting quantitative evaluation per image:")
+
+            for lbl_name, pred_name in zip(labelNames, predNames):
+                label_path = os.path.join(self.LABELPATH, lbl_name)
+                pred_path = os.path.join(self.RESULTPATH, 'preds', pred_name)
+                
+                try:
+                    lbl = iio.imread(label_path)
+                    pred_data = loadmat(pred_path)
+                    if 'pred_label' not in pred_data:
+                        print(f"[WARNING] Missing 'pred_label' in {pred_name}")
+                        continue
+                    pred = pred_data['pred_label']
+                    if pred.ndim == 3:
+                        pred = np.argmax(pred, axis=2)
+
+                    iou = plotutils.compute_iou(pred, lbl, self.NUM_CLASSES)
+                    dice = plotutils.compute_dice(pred, lbl, self.NUM_CLASSES)
+                    acc = plotutils.compute_pixel_accuracy(pred, lbl)
+                    f1 = plotutils.compute_f1_per_class(pred, lbl, self.NUM_CLASSES)
+
+                    print(f"\n[METRICS] {lbl_name}")
+                    print(f"IoU: {np.round(np.nan_to_num(iou, nan=-1.0), 3)}")
+                    print(f"Dice: {np.round(np.nan_to_num(dice, nan=-1.0), 3)}")
+                    print(f"Pixel Accuracy: {acc:.4f}")
+                    print(f"F1-score per class: {np.round(np.nan_to_num(f1, nan=-1.0), 3)}")
+
+                    # Save metrics to CSV file
+                    metrics_path = os.path.join(self.RESULTPATH, 'costs', 'metrics_summary.csv')
+                    write_header = not os.path.exists(metrics_path)
+                    with open(metrics_path, 'a') as f:
+                        if write_header:
+                            header = ['Image'] + [f'IoU_{i}' for i in range(self.NUM_CLASSES)] + \
+                                     [f'Dice_{i}' for i in range(self.NUM_CLASSES)] + \
+                                     ['Pixel_Accuracy'] + [f'F1_{i}' for i in range(self.NUM_CLASSES)]
+                            f.write(','.join(header) + '\n')
+                        row = [lbl_name] + \
+                              [f"{-1.000 if np.isnan(v) else v:.3f}" for v in iou] + \
+                              [f"{-1.000 if np.isnan(v) else v:.3f}" for v in dice] + \
+                              [f"{acc:.4f}"] + \
+                              [f"{-1.000 if np.isnan(v) else v:.3f}" for v in f1]
+                        f.write(','.join(row) + '\n')
+
+                except Exception as e:
+                    print(f"[ERROR] Failed metrics for {lbl_name}: {e}")
+        else:
+            print("[INFO] Skipping confusion matrix: running in unlabeled mode.")
     
     #==========================================================================  
               

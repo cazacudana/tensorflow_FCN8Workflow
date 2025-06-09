@@ -11,6 +11,7 @@ Plotting utilities
 import os
 import matplotlib.pylab as plt
 import matplotlib as mpl
+from matplotlib import colors
 import scipy.misc
 import numpy as np
 import imageio.v3 as iio
@@ -18,6 +19,8 @@ from PIL import Image
 from sklearn.metrics import confusion_matrix
 from scipy.io import loadmat
 from termcolor import colored
+import glob
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 # in Run_settings.py or at top of your main script
@@ -155,6 +158,8 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             prefix = base.split('_rowmin')[0]  # e.g. 'train_16'
             coords = base[len(prefix):]       # e.g. '_rowmin0_rowmax256_colmin496_colmax752'
             labelname = f"{prefix}_anno{coords}{EXT_LBLS}"
+            #for second dataset, you might want to use:
+            #labelname = f"{prefix}_{coords}{EXT_LBLS}"
 
             print(f"Image: {imname}")
             print(f"Label: {labelname}")
@@ -181,23 +186,17 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             pred_ignoreExcl = pred.copy()
             pred_ignoreExcl[lbl==EXCLUDE_LBL[0]] = EXCLUDE_LBL[0]
             
-            # Get difference between pred_ignoreExcl and GT
-            Diff = pred_ignoreExcl - lbl
-            #d = Diff.copy()
-            Diff[Diff != 0] = 1
-            Diff = Diff * pred_ignoreExcl
-
-            diff_bool = Diff != 0
+            # Dynamic difference map: correct = 0, incorrect = 1
+            # Diff = (pred_ignoreExcl != lbl).astype(np.uint8)
             
             # Make sure the full color map is occupied for all images
             fullRange = np.array([0] + CLASSLABELS)
             lbl[0:len(CLASSLABELS)+1,1] = fullRange
             pred[0:len(CLASSLABELS)+1,1] = fullRange
             pred_ignoreExcl[0:len(CLASSLABELS)+1,1] = fullRange
-            #Diff[0:len(CLASSLABELS)+1,1] = fullRange
             
             # Plot image and labels/predictions
-            f, axarr = plt.subplots(1, 6, figsize=(15, 3))
+            f, axarr = plt.subplots(1, 5, figsize=(13, 3))
             
             #Print image name for comparation
             # (Already printed above)
@@ -208,24 +207,26 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             axarr[1].imshow(pred, cmap=cMap)
             axarr[2].imshow(pred_ignoreExcl, cmap=cMap)
             axarr[3].imshow(lbl, cmap=cMap)
-            axarr[4].imshow(Diff, cmap=cMap)
+            # axarr[4].imshow(Diff, cmap=cMap)
             
             axarr[0].set_title('Image', fontsize=10, fontweight='bold')
             axarr[1].set_title('Pred', fontsize=10, fontweight='bold')
             axarr[2].set_title('Pred_Excl', fontsize=10, fontweight='bold')
             axarr[3].set_title('GTruth', fontsize=10, fontweight='bold')
-            axarr[4].set_title('Diff', fontsize=10, fontweight='bold')
+            axarr[4].set_title('Error Mask', fontsize=10, fontweight='bold')
             
-            # Define a custom error colormap: 0=correct (orange), 1=wrong (black)
-            err_cmap = mpl.colors.ListedColormap(['orange','black'])
-            # Sixth panel: error mask boolean
-            im_err = axarr[5].imshow(diff_bool, cmap=err_cmap, vmin=0, vmax=1)
+            # Fifth panel: error mask
+            im_err = axarr[4].imshow(pred != lbl, cmap=mpl.colors.ListedColormap(['orange', 'black']), vmin=0, vmax=1)
+
+            # Create external legend for error mask
             from matplotlib.patches import Patch
-            patch_correct = Patch(color='orange', label='Correct')
-            patch_wrong   = Patch(color='black',   label='Wrong')
-            axarr[5].legend(handles=[patch_correct, patch_wrong],
-                            loc='lower right', fontsize=8, frameon=False)
-            axarr[5].set_title('Error Mask', fontsize=10, fontweight='bold')
+            patch_correct = Patch(color='orange', label='Correct (match)')
+            patch_wrong   = Patch(color='black', label='Wrong (mismatch)')
+
+            # Add new axes for error mask legend on the right of the figure
+            ax_legend = f.add_axes([1.12, 0.4, 0.12, 0.2])
+            ax_legend.axis('off')
+            ax_legend.legend(handles=[patch_correct, patch_wrong], loc='center left', fontsize=9, frameon=False)
             
             
             # create a second axes for the colorbar
@@ -247,8 +248,8 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             pixelrange_y = list(np.arange(0,maxdim_y,int(maxdim_y/5)))
             
             plt.setp(axarr, xticks=pixelrange_x, yticks=pixelrange_y)
-            plt.setp([a.get_yticklabels() for a in axarr[0:6]], visible=False)
-            plt.setp([a.get_xticklabels() for a in axarr[0:6]], visible=False)
+            plt.setp([a.get_yticklabels() for a in axarr[0:5]], visible=False)
+            plt.setp([a.get_xticklabels() for a in axarr[0:5]], visible=False)
             
             # save
             barename = imname.split('.')
@@ -415,7 +416,188 @@ def getWhiteMask(im, THRESH = 225):
                  
     return whiteMask
     
+def SaveComparisons_Unlabeled(imNames, predNames, IMAGEPATH, PREDPATH, EXT_IMGS='.png'):
+    print("\n Saving basic input+prediction comparison images (no labels)...\n")
 
+    class_labels = {
+        0: "Other",
+        1: "Tumor",
+        2: "Stroma",
+        3: "Inflammatory",
+        4: "Necrosis"
+    }
+
+    for idx, imname in enumerate(imNames):
+        print("Image:", imname)
+        try:
+            base_name = imname.split(EXT_IMGS)[0]
+            pred_pattern = os.path.join(PREDPATH, base_name + '*.mat')
+            pred_files = glob.glob(pred_pattern)
+            if not pred_files:
+                raise FileNotFoundError(f"No prediction file found for {imname}")
+
+            im = iio.imread(os.path.join(IMAGEPATH, imname))
+
+            pred_mat = loadmat(pred_files[0])
+            if 'pred_label' not in pred_mat:
+                raise ValueError(f"'pred_label' not found in {pred_files[0]}")
+            pred = pred_mat['pred_label']
+            print(f"[DEBUG] Prediction value range for {imname}: min={np.min(pred)}, max={np.max(pred)}")
+            if pred.ndim == 3:
+                pred = np.argmax(pred, axis=2)
+
+            # Get unique classes
+            unique_classes = np.unique(pred)
+            n_classes = len(unique_classes)
+
+            # Set up color mapping to match Run_settings order: red, blue, green, yellow
+            base_colors = np.array([
+                [128, 128, 128],  # background
+                [255,   0,   0],  # Tumor - red
+                [  0,   0, 255],  # Stroma - blue
+                [  0, 255,   0],  # Inflammatory - green
+                [255, 255,   0],  # Necrosis - yellow
+            ]) / 255.0
+            if n_classes > len(base_colors):
+                raise ValueError("Not enough colors defined for all classes")
+
+            # Create mapping of classes to indices
+            class_to_index = {c: i for i, c in enumerate(unique_classes)}
+            indexed_pred = np.vectorize(class_to_index.get)(pred)
+
+            cmap = colors.ListedColormap(base_colors[:n_classes])
+
+            fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+            axs[0].imshow(im, aspect='equal')
+            axs[0].set_title('Input', fontsize=12, fontweight='bold', loc='center')
+
+            im_pred = axs[1].imshow(indexed_pred, cmap=cmap, aspect='equal')
+            axs[1].set_title('Prediction', fontsize=12, fontweight='bold', loc='center')
+
+            # Add colorbar
+            divider = make_axes_locatable(axs[1])
+            cax = divider.append_axes("right", size="5%", pad=0.05)
+            cbar = plt.colorbar(im_pred, cax=cax, ticks=np.arange(n_classes))
+            cbar.ax.set_yticklabels([str(c) for c in unique_classes])
+
+            # Add a custom legend for class colors, to the right of the prediction image
+            from matplotlib.patches import Patch
+            legend_elements = [
+                Patch(facecolor=base_colors[class_to_index[c]], edgecolor='k',
+                      label=f"{class_labels.get(c, f'Class {c}')} ({c})")
+                for c in unique_classes
+            ]
+
+            for ax in axs:
+                ax.set_xticks([])
+                ax.set_yticks([])
+                for spine in ax.spines.values():
+                    spine.set_visible(False)
+
+            # Add custom legend to the right of the prediction image
+            divider = make_axes_locatable(axs[1])
+            legend_ax = divider.append_axes("right", size="25%", pad=0.2)
+            legend_ax.axis('off')
+            legend_ax.legend(handles=legend_elements, title="Classes", loc='center left', fontsize=9, frameon=False)
+
+            plt.tight_layout()
+            outname = os.path.join(PREDPATH, base_name + '_pred_comp.png')
+            fig.savefig(outname)
+            plt.close(fig)
+
+        except Exception as e:
+            print(f"[WARNING] Failed to save comparison for {imname}: {e}")
+            
+            
+#
+#
+# ------------------------------------------------------------------------------
+# Function: compute_iou
+# Description: Computes Intersection over Union (IoU) score for each class.
+#              IoU = TP / (TP + FP + FN), where TP = True Positives,
+#              FP = False Positives, FN = False Negatives.
+#              Range: [0, 1]. A higher IoU indicates better prediction.
+#              IoU ≈ 1: perfect overlap, IoU ≈ 0: poor or no overlap.
+# Inputs:
+#   - pred: predicted label map
+#   - label: ground truth label map
+#   - num_classes: number of distinct classes
+# Returns:
+#   - List of IoU values for each class
+# ------------------------------------------------------------------------------
+def compute_iou(pred, label, num_classes):
+    ious = []
+    for cls in range(num_classes):
+        pred_inds = (pred == cls)
+        label_inds = (label == cls)
+        intersection = np.logical_and(pred_inds, label_inds).sum()
+        union = np.logical_or(pred_inds, label_inds).sum()
+        ious.append(intersection / union if union > 0 else float('nan'))
+    return ious
+
+#
+# ------------------------------------------------------------------------------
+# Function: compute_dice
+# Description: Computes Dice coefficient for each class.
+#              Dice = 2 * TP / (2 * TP + FP + FN), a measure of overlap
+#              between predicted and ground truth masks.
+#              Range: [0, 1]. A higher Dice score indicates better prediction.
+#              Dice ≈ 1: perfect match, Dice ≈ 0: no overlap.
+# Inputs:
+#   - pred: predicted label map
+#   - label: ground truth label map
+#   - num_classes: number of distinct classes
+# Returns:
+#   - List of Dice scores for each class
+# ------------------------------------------------------------------------------
+def compute_dice(pred, label, num_classes):
+    dices = []
+    for cls in range(num_classes):
+        pred_inds = (pred == cls)
+        label_inds = (label == cls)
+        intersection = np.logical_and(pred_inds, label_inds).sum()
+        denom = pred_inds.sum() + label_inds.sum()
+        dices.append((2. * intersection) / denom if denom > 0 else float('nan'))
+    return dices
+
+#
+# ------------------------------------------------------------------------------
+# Function: compute_pixel_accuracy
+# Description: Calculates overall pixel-wise accuracy.
+#              Pixel accuracy = correctly predicted pixels / total pixels.
+#              Range: [0, 1]. Closer to 1 indicates high overall accuracy.
+# Inputs:
+#   - pred: predicted label map
+#   - label: ground truth label map
+# Returns:
+#   - Scalar value of pixel accuracy
+# ------------------------------------------------------------------------------
+def compute_pixel_accuracy(pred, label):
+    return np.mean(pred == label)
+
+#
+# ------------------------------------------------------------------------------
+# Function: compute_f1_per_class
+# Description: Calculates F1-score for each class.
+#              F1 = 2 * TP / (2 * TP + FP + FN), a harmonic mean of precision and recall.
+#              Range: [0, 1]. Higher values indicate better class-wise performance.
+#              F1 ≈ 1: good precision and recall; F1 ≈ 0: poor performance.
+# Inputs:
+#   - pred: predicted label map
+#   - label: ground truth label map
+#   - num_classes: number of distinct classes
+# Returns:
+#   - List of F1-scores for each class
+# ------------------------------------------------------------------------------
+def compute_f1_per_class(pred, label, num_classes):
+    f1s = []
+    for cls in range(num_classes):
+        tp = np.logical_and(pred == cls, label == cls).sum()
+        fp = np.logical_and(pred == cls, label != cls).sum()
+        fn = np.logical_and(pred != cls, label == cls).sum()
+        denom = 2 * tp + fp + fn
+        f1s.append((2 * tp) / denom if denom > 0 else float('nan'))
+    return f1s
 #%%============================================================================
 # Test methods 
 #==============================================================================

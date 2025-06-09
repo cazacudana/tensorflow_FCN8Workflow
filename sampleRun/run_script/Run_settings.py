@@ -19,15 +19,19 @@ cwd = os.getcwd()
 print("Running run settings from sample run")
 print()
 #small data set 
-IMAGEPATH = cwd + "/sampleRun/images/trainimagesold/"
-#Big data set
+#IMAGEPATH = cwd + "/sampleRun/images/trainimagesold/"
+#Big data set syntetic
 #IMAGEPATH = cwd + "/sampleRun/images/"
+#Big data set histology
+IMAGEPATH = cwd + "/sampleRun/images/trainimagesold_bigset/"
 
 #small data set 
-LABELPATH = cwd + "/sampleRun/images/" + "GTinfo_old/"
-#Big data set
+#LABELPATH = cwd + "/sampleRun/images/" + "GTinfo_old/"
+#Big data set syntetic
 #LABELPATH = IMAGEPATH + "GTinfo/"
 #LABELPATH = ""
+#Big data set histology
+LABELPATH = cwd + "/sampleRun/images/" + "GTinfo_old_bigset/"
 
 MODELPATH_LOAD = cwd + "/sampleRun/model/"
 MODELPATH_SAVE = MODELPATH_LOAD
@@ -98,7 +102,7 @@ modelparams = {'RESULTPATH' : RESULTPATH,
 splitparams_thisRun = None # existing model-specific set of images
 
 runparams = {'USE_VALID' : True, 
-             'IS_TESTING' : True, 
+             'IS_TESTING' : False, 
              'PREDICT_ALL' : False, 
              'SOFTPREDS': True,
              

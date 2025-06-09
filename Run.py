@@ -146,7 +146,16 @@ elif RUNMODE == "predict_unlabeled":
     # Predict an unlabeled set of images
     #==========================================================================
 
-    Run_settings.modelparams['SplitDataParams'].pop('IMAGEPATH')  
+    if 'SplitDataParams' in Run_settings.modelparams:
+        Run_settings.modelparams['SplitDataParams'].pop('IMAGEPATH', None)
+        Run_settings.modelparams['SplitDataParams'].pop('LABELPATH', None)
+        Run_settings.modelparams['SplitDataParams'].pop('labelNames', None)
+
+    # Asigură-te că nu există câmpuri inutile în modul unlabeled
+    if 'LABELPATH' in Run_settings.modelparams.get('SplitDataParams', {}):
+        Run_settings.modelparams['SplitDataParams'].pop('LABELPATH')
+    if 'labelNames' in Run_settings.modelparams.get('SplitDataParams', {}):
+        Run_settings.modelparams['SplitDataParams'].pop('labelNames')
 
     # Instantiate model         
     thisModel = FCN8VGG16Model(**Run_settings.modelparams)

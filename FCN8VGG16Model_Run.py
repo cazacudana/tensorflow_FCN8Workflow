@@ -11,6 +11,7 @@ Run an FCN8 model
 # Append relevant paths
 import os
 import sys
+import glob
 
 
 def conditionalAppend(Dir):
@@ -297,10 +298,13 @@ class FCN8VGG16Model_Run(object):
         else:
             if self.PREDICT_ALL:
                 self.imNames = self.SplitData['imNames']
-                if not self.IS_UNLABELED:
-                    self.labelNames = self.SplitData['labelNames']
                 self.fovBounds = self.SplitData['FOV_bounds']
                 
+                # Accesează labelNames doar dacă există
+                if (not self.IS_UNLABELED) and ('labelNames' in self.SplitData):
+                    self.labelNames = self.SplitData['labelNames']
+                else:
+                    self.labelNames = None
             else:
                 # Only predict the testing set
                 self.imNames = self.SplitData['imNames_test']
@@ -580,10 +584,12 @@ class FCN8VGG16Model_Run(object):
                           
                           'USE_MMAP' : self.USE_MMAP}
             
-            if not self.IS_UNLABELED:
-                Loadparams.update({'LABELPATH': self.LABELPATH,
-                                  'labelNames': labelnames[idxMin:idxMax],
-                                  'EXT_LBLS': self.EXT_LBLS})
+            if not self.IS_UNLABELED and labelnames is not None:
+                Loadparams.update({
+                    'LABELPATH': self.LABELPATH,
+                    'labelNames': labelnames[idxMin:idxMax] if labelnames is not None else None,
+                    'EXT_LBLS': self.EXT_LBLS
+            })
             
             
             Bigbatch = dm.LoadData(**Loadparams)
@@ -835,17 +841,31 @@ class FCN8VGG16Model_Run(object):
                     putils.Log_and_print("\nMaking predictions for unlabeled image set ...")
                     
                     try:
-                        self._RunAllBatches(\
-                                       sess, saver, t_start, \
-                                       imNames = self.imNames, \
-                                       fovBounds = self.fovBounds, \
-                                       runMode = "testing")
-                        
+                        self._RunAllBatches(
+                            sess, saver, t_start,
+                            imNames=self.imNames,
+                            fovBounds=self.fovBounds,
+                            runMode="testing"
+                        )
                     except KeyboardInterrupt:
                         pass
                     
-                    putils.Log_and_print(colored("Saved predictions to {}"\
-                                        .format(self.Model.RESULTPATH), 'yellow'))
+                    putils.Log_and_print(colored("Saved predictions to {}"
+                        .format(self.Model.RESULTPATH), 'yellow'))
+
+                    # Save basic comparison images (input + prediction only)
+                    putils.Log_and_print("\nSaving basic input+prediction comparison images (no labels)...")
+                    predNames = sorted(glob.glob(os.path.join(self.Model.RESULTPATH, "*.mat")))
+                    try:
+                        plotutils.SaveComparisons_Unlabeled(
+                            imNames=self.imNames,
+                            predNames=predNames,
+                            IMAGEPATH=self.IMAGEPATH,
+                            PREDPATH=self.Model.RESULTPATH,
+                            EXT_IMGS=self.EXT_IMGS
+                        )
+                    except Exception as e:
+                        putils.Log_and_print(f"[WARNING] Could not save comparisons: {e}")
                     
             # Save current version of model attributes along with run attributes
             Modelattr = self.Model.get_ModelInfo()
@@ -858,8 +878,3 @@ class FCN8VGG16Model_Run(object):
             print(colored("\nSaved log files to " + self.log_savepath, 'yellow'))
             
             putils.Log_and_print("\n--- DONE. ---")
-
-#%% 
-#%% 
-#%% 
-#%%
