@@ -157,9 +157,9 @@ def SaveComparisons(IMAGEPATH="", LABELPATH="", PREDPATH="", RESULTPATH="", \
             base = imname.split(EXT_IMGS)[0]
             prefix = base.split('_rowmin')[0]  # e.g. 'train_16'
             coords = base[len(prefix):]       # e.g. '_rowmin0_rowmax256_colmin496_colmax752'
-            labelname = f"{prefix}_anno{coords}{EXT_LBLS}"
+            #labelname = f"{prefix}_anno{coords}{EXT_LBLS}"
             #for second dataset, you might want to use:
-            #labelname = f"{prefix}_{coords}{EXT_LBLS}"
+            labelname = f"{prefix}{coords}{EXT_LBLS}"
 
             print(f"Image: {imname}")
             print(f"Label: {labelname}")
@@ -307,8 +307,8 @@ def PlotConfusionMatrix(PREDPATH='', LABELPATH='', RESULTPATH='',
         imidx = 0; #labelname = labelNames[0]
         for imidx, labelname in enumerate(labelNames):
             
-            print(imidx)
-            print("image {} of {} ({})".format(imidx+1, len(labelNames), labelname))
+            #print(imidx)
+            #print("image {} of {} ({})".format(imidx+1, len(labelNames), labelname))
           
             
             try:  

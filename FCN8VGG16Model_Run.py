@@ -355,7 +355,10 @@ class FCN8VGG16Model_Run(object):
         if (not self.IS_TESTING) and self.AUGMENT: 
             # Random brightness and contrast adjustment
             vgg.images = tf.image.random_brightness(vgg.images, max_delta=63)
-            vgg.images = tf.image.random_contrast(vgg.images, lower=0.2, upper=1.8)
+            vgg.images = tf.image.random_contrast(vgg.images, lower=0.2, upper=1.8)# Additional augmentation: random horizontal and vertical flips
+            vgg.images = tf.image.random_flip_left_right(vgg.images)
+            vgg.images = tf.image.random_flip_up_down(vgg.images)
+            
                                     
         with tf.name_scope("content_vgg"):
             vgg.build(vgg.images, train = (not self.IS_TESTING), \

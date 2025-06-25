@@ -418,11 +418,11 @@ class FCN8VGG16Model(object):
                     acc = plotutils.compute_pixel_accuracy(pred, lbl)
                     f1 = plotutils.compute_f1_per_class(pred, lbl, self.NUM_CLASSES)
 
-                    print(f"\n[METRICS] {lbl_name}")
-                    print(f"IoU: {np.round(np.nan_to_num(iou, nan=-1.0), 3)}")
-                    print(f"Dice: {np.round(np.nan_to_num(dice, nan=-1.0), 3)}")
-                    print(f"Pixel Accuracy: {acc:.4f}")
-                    print(f"F1-score per class: {np.round(np.nan_to_num(f1, nan=-1.0), 3)}")
+                    #print(f"\n[METRICS] {lbl_name}")
+                    #print(f"IoU: {np.round(np.nan_to_num(iou, nan=-1.0), 3)}")
+                    #print(f"Dice: {np.round(np.nan_to_num(dice, nan=-1.0), 3)}")
+                    #print(f"Pixel Accuracy: {acc:.4f}")
+                    #print(f"F1-score per class: {np.round(np.nan_to_num(f1, nan=-1.0), 3)}")
 
                     # Save metrics to CSV file
                     metrics_path = os.path.join(self.RESULTPATH, 'costs', 'metrics_summary.csv')

@@ -331,7 +331,7 @@ def GetSplitData(IMAGEPATH="", LABELPATH="", MODELPATH="", \
                                    savename_im)
 
                 # Save normalized version separately into FOVs_Original
-                ThisFOV_RGB_image.save(FOVPATH_IMS_ORIGINAL + savename_im)
+                #ThisFOV_RGB_image.save(FOVPATH_IMS_ORIGINAL + savename_im)
                
                 
                 #ThisFOV_RGB = scipy.misc.toimage(ThisFOV_RGB, \
