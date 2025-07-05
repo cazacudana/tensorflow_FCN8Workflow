@@ -20,23 +20,26 @@ print("Running run settings from sample run")
 print()
 #small data set 
 #IMAGEPATH = cwd + "/sampleRun/images/trainimagesold/"
-#Big data set syntetic
+#Synthtic data set
 #IMAGEPATH = cwd + "/sampleRun/images/"
-#Big data set histology
-IMAGEPATH = cwd + "/sampleRun/images/trainimagesold_bigset/"
-
+#Big data set 
+IMAGEPATH = cwd + "/sampleRun/images/trainimages_bigset/"
 #small data set 
 #LABELPATH = cwd + "/sampleRun/images/" + "GTinfo_old/"
-#Big data set syntetic
+#Synthetic data set
 #LABELPATH = IMAGEPATH + "GTinfo/"
 #LABELPATH = ""
-#Big data set histology
-LABELPATH = cwd + "/sampleRun/images/" + "GTinfo_old_bigset/"
+#Big data set 
+LABELPATH = cwd + "/sampleRun/images/" + "GTinfo_bigset/"
 
 MODELPATH_LOAD = cwd + "/sampleRun/model/"
+#model for synthetic data set
+#MODELPATH_LOAD = cwd + "/sampleRun/model_synthetic/"
 MODELPATH_SAVE = MODELPATH_LOAD
 
 RESULTPATH = cwd + "/sampleRun/results/"
+#Syntetic data set reuslt path
+#RESULTPATH = cwd + "/sampleRun/results_synthetic/"
 
 #%%============================================================================
 # Define params
@@ -74,13 +77,13 @@ splitparams = {'IMAGEPATH': IMAGEPATH,
                'IS_UNLABELED': False,
                'SAVE_FOVs': True,
                
-               'PERC_TRAIN' : 0.8, 
-               'PERC_TEST' : 0.2, 
+               'PERC_TRAIN' : 0.9, 
+               'PERC_TEST' : 0.1, 
                'EXT_IMGS' : EXT_IMGS, 
                'EXT_LBLS' : EXT_LBLS,
                
-               'TRAIN_DIMS' : (256, 256),
-               'SHIFT_STEP' : 30,
+               'TRAIN_DIMS' : (2056,2056),
+               'SHIFT_STEP' : 0,
                'IGNORE_THRESH': 0.9,
                'EXCLUDE_LBL': EXCLUDE_LBL,
                'CLASSLABELS': CLASSLABELS,
@@ -106,12 +109,12 @@ runparams = {'USE_VALID' : True,
              'PREDICT_ALL' : False, 
              'SOFTPREDS': True,
              
-             'AUGMENT': True,
-             'LEARN_RATE' : 1e-5,
-             'SUBBATCH_SIZE' : 4,
-             'BIGBATCH_SIZE' : 16,
-             'MODELSAVE_STEP': 10,
-             'MODEL_BACKUP_STEP': 10,
+             'AUGMENT': False,
+             'LEARN_RATE' : 1e-6,
+             'SUBBATCH_SIZE' : 3,
+             'BIGBATCH_SIZE' : 6,
+             'MODELSAVE_STEP': 20,
+             'MODEL_BACKUP_STEP': 30,
              
              'SCALEFACTOR': SCALEFACTOR,
              't_mins': None,
